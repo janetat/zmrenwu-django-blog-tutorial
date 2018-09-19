@@ -12,6 +12,8 @@ class IndexView(ListView):
     template_name = 'blog/index.html'
     # 获取Post列表数据，并保存到post_list中
     context_object_name = 'post_list'
+    # 如果在FBV中分页，要用到Django的Paginator。在CBV中，用属性
+    paginate_by = 3
 
 
 class PostDetailView(DetailView):
