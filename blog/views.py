@@ -19,7 +19,10 @@ def detail(request, pk):
         'markdown.extensions.toc'
     ])
 
-    # 加入表单
+    # 阅读量+1
+    post.increase_page_view()
+
+    # 创建评论表单实例
     form = CommentForm()
     # 因为Comment和Post是多对一关系，是ForeignKey。模型Post有Comment的反向引用。
     comment_list = post.comment_set.all()

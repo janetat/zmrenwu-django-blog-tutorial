@@ -1,8 +1,8 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from blog.models import Post
 
-from .models import Comment
 from .forms import CommentForm
+
 
 # Create your views here.
 def post_comment(request, post_pk):
@@ -37,6 +37,3 @@ def post_comment(request, post_pk):
 
     # 不是POST请求，用户没有提交表单数据，重定向到文章详情页
     return redirect(post)
-
-
-
