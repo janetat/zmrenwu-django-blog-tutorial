@@ -24,7 +24,6 @@ class PostDetailView(DetailView):
     # get_object, get_context_data都是辅助方法，都会在get中调用
     def get(self, request, *args, **kwargs):
         """get方法最终会返回一个HTTPResponse"""
-        # 调用父类的get, 才有self.object
         response = super().get(request, *args, **kwargs)
 
         # 文章阅读量+1。这里的object就是get_object()返回的object, 就是文章post的一个实例
