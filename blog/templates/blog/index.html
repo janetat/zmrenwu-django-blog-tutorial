@@ -27,7 +27,7 @@
         <div class="no-post">暂时还没有发布的文章！</div>
     {% endfor %}
 
-    <!-- 分页, 基于CBV，穿过来的context有Paginator自带的4个加上自定义的6个。详细看IndexView的get_context_data -->
+    <!-- 分页, 基于CBV，穿过来的context有Paginator自带的4个加上自定义的6个变量。详细看IndexView的get_context_data -->
     {% if is_paginated %}
     <div class="pagination">
         <!-- 第一页 -->

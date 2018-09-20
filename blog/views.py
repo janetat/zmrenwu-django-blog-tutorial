@@ -3,7 +3,7 @@ from django.shortcuts import render, get_object_or_404
 from django.views.generic import ListView, DetailView
 
 from comments.forms import CommentForm
-from .models import Post, Category
+from .models import Post, Category, Tag
 
 
 class IndexView(ListView):
@@ -104,6 +104,7 @@ class IndexView(ListView):
 
         return data
 
+
 # 简短写法
 # def pagination_data(self, paginator, page, is_paginated):
 #     if not is_paginated:
@@ -181,6 +182,7 @@ class PostDetailView(DetailView):
         })
         return context
 
+
 class ArchivesView(IndexView):
     def get_queryset(self):
         # 在类视图中，从 URL 捕获的命名组参数值保存在实例的 kwargs 属性（是一个字典）里，非命名组参数值保存在实例的 args 属性（是一个列表）里。原理看ContextMixin。
@@ -188,8 +190,15 @@ class ArchivesView(IndexView):
         month = self.kwargs.get('month')
         return super().get_queryset().filter(created_time__year=year, created_time__month=month)
 
+
 class CategoryView(IndexView):
     def get_queryset(self):
         cate = get_object_or_404(Category, pk=self.kwargs.get('pk'))
         # 因为父类IndexView绑定了model = Post, 所以get_queryset对Post操作
         return super().get_queryset().filter(category=cate)
+
+
+class TagView(IndexView):
+    def get_queryset(self):
+        tag = get_object_or_404(Tag, pk=self.kwargs.get('pk'))
+        return super().get_queryset().filter(tags=tag)
