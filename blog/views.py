@@ -3,6 +3,7 @@ from markdown.extensions.toc import TocExtension
 from django.shortcuts import render, get_object_or_404
 from django.views.generic import ListView, DetailView
 from django.utils.text import slugify
+from django.db.models import Q
 
 from comments.forms import CommentForm
 from .models import Post, Category, Tag
@@ -12,7 +13,7 @@ class IndexView(ListView):
     # get_queryset()对Post进行操作。
     model = Post
     template_name = 'blog/index.html'
-    # 获取Post列表数据，并保存到post_list中。
+    # 就是get_queryset返回的数据保存到post_list中。
     context_object_name = 'post_list'
     # 如果在FBV中分页，要用到Django的Paginator。在CBV中，用属性
     paginate_by = 3
@@ -109,7 +110,8 @@ class IndexView(ListView):
 
 
 # 简短写法
-# def pagination_data(self, paginator, page, is_paginated):
+# @staticmethod
+# def pagination_data(paginator, page, is_paginated):
 #     if not is_paginated:
 #         return {}
 #     left = []
@@ -192,7 +194,7 @@ class PostDetailView(DetailView):
 
 class ArchivesView(IndexView):
     def get_queryset(self):
-        # 在类视图中，从 URL 捕获的命名组参数值保存在实例的 kwargs 属性（是一个字典）里，非命名组参数值保存在实例的 args 属性（是一个列表）里。原理看ContextMixin。
+        # 在类视图中，从 URL 捕获的命名组参数值保存在实例的 kwargs 属性（是一个字典）里，非命名组参数值保存在实例的 args 属性（是一个元组）里。原理看ContextMixin。
         year = self.kwargs.get('year')
         month = self.kwargs.get('month')
         return super().get_queryset().filter(created_time__year=year, created_time__month=month)
@@ -209,3 +211,33 @@ class TagView(IndexView):
     def get_queryset(self):
         tag = get_object_or_404(Tag, pk=self.kwargs.get('pk'))
         return super().get_queryset().filter(tags=tag)
+
+
+# def search(request):
+#     """简单的搜索功能"""
+#     q = request.GET.get('q')
+#     error_msg = ''
+#
+#     if not q:
+#         error_msg = '请输入关键词'
+#         return render(request, 'blog/index.html', {'error_msg': error_msg})
+#
+#     # Q提供了复杂的查询逻辑
+#     post_list = Post.objects.filter(Q(title__icontains=q) | Q(body__icontains=q))
+#     return render(request, 'blog/index.html', {'error_msg': error_msg,
+#                                                'post_list': post_list})
+
+class SearchView(IndexView):
+    def get(self, request, *args, **kwargs):
+        """get方法最终会返回一个HTTPResponse"""
+        q = request.GET.get('q')
+        error_msg = ''
+
+        if not q:
+            error_msg = '请输入关键词'
+            return render(request, 'blog/index.html', {'error_msg': error_msg})
+
+        # Q提供了复杂的查询逻辑
+        post_list = Post.objects.filter(Q(title__icontains=q) | Q(body__icontains=q))
+        return render(request, 'blog/index.html', {'error_msg': error_msg,
+                                                   'post_list': post_list})
