@@ -1,6 +1,8 @@
 import markdown
+from markdown.extensions.toc import TocExtension
 from django.shortcuts import render, get_object_or_404
 from django.views.generic import ListView, DetailView
+from django.utils.text import slugify
 
 from comments.forms import CommentForm
 from .models import Post, Category, Tag
@@ -30,7 +32,8 @@ class IndexView(ListView):
         context.update(pagination_data)
         return context
 
-    def pagination_data(self, paginator, page, is_paginated):
+    @staticmethod
+    def pagination_data(paginator, page, is_paginated):
         if not is_paginated:
             # 如果没有分页，就没有必要return任何分页导航条的数据。
             return {}
@@ -161,14 +164,18 @@ class PostDetailView(DetailView):
         return response
 
     def get_object(self, queryset=None):
-        """在这里对post的body的值解析为Markdown"""
+        """覆写 get_object 方法的目的是因为需要对post的body值进行markdown渲染"""
         post = super().get_object(queryset=None)
-        post.body = markdown.markdown(post.body,
-                                      extensions=[
-                                          'markdown.extensions.extra',
-                                          'markdown.extensions.codehilite',
-                                          'markdown.extensions.toc'
-                                      ])
+        md = markdown.Markdown(extensions=[
+            'markdown.extensions.extra',
+            'markdown.extensions.codehilite',
+            # 'markdown.extensions.toc', 这个内置的拓展的锚点URL不美观(#_1，当有中文时就会简单的在#后加上_x)
+            TocExtension(slugify=slugify)
+        ])
+
+        post.body = md.convert(post.body)
+        post.toc = md.toc
+
         return post
 
     def get_context_data(self, **kwargs):
