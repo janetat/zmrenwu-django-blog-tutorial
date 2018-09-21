@@ -18,7 +18,7 @@
             <div class="widget widget-tag-cloud">
                 <ul>
                     标签：
-                    <!-- Post中的tags，是多对多，用post.tags访问会返回一个模型管理器 -->
+                    <!-- Post中的tags，是多对多关系，用post.tags访问会返回一个模型管理器 -->
                     {% for tag in post.tags.all %}
                         <li><a href="{% url 'blog:tag' tag.pk %}">{{ tag.name }}</a></li>
                     {% endfor %}
